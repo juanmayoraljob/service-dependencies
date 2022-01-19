@@ -5,7 +5,8 @@ OS=$2
 ALL=$3
 FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 ID=$(docker ps |grep -i naemon |awk '{print $NF}')
-ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |awk '{print $2}' | paste -s -d, -)
+#ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |grep -v "#" |awk '{print $2}' | paste -s -d, -)
+ALLSERVICES=$(docker exec -i $ID /bin/bash -c "pynag list WHERE host_name=PBXROSARIO and object_type=service" |grep service |grep -v PING" |awk '{print $2}' | cut -d '/' -f2 | paste -s -d, -)
 
 if [ $# -eq 0 ]
   then
@@ -103,14 +104,14 @@ echo "Config aplicada"
 fi
 }
 
-if [ -z "$ALL" ]
+if [ -z "$ALL" ] && [ $OS != "ALL" ]
 then
 while true; do
     read -p "Aplicar configuracion:
-             Hostname: $HOST 
+             Hostname: $HOST
              File: $FILE
              OS: $OS
-             Services: BASICOS 
+             Services: BASICOS
              -> Aplicar configuracion? (Yyes/Nno): "  yn
     case $yn in
         [Yy]* ) $OS ; break;;
@@ -123,7 +124,7 @@ else
 
 while true; do
     read -p "Aplicar configuracion:
-             Hostname: $HOST 
+             Hostname: $HOST
              File: $FILE
              OS: $OS
              Services: $ALLSERVICES
@@ -136,3 +137,4 @@ while true; do
 done
 
 fi
+
