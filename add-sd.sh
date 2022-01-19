@@ -3,7 +3,8 @@
 HOST=$1
 OS=$2
 ALL=$3
-
+PATH=$(dirname "$0")
+PATH_BACKUP=$PATH/backup
 FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 ID=$(docker ps |grep -i naemon |awk '{print $NF}')
 #ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |grep -v "#" |awk '{print $2}' | paste -s -d, -)
@@ -25,6 +26,7 @@ else
 
 fi
 
+cp $FILE $PATH_BACKUP/$FILE.bkp
 check_status () {
     if [ $? -eq 0 ]; then echo "Error" exit; fi
 }
