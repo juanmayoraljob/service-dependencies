@@ -85,9 +85,9 @@ echo "Config aplicada"
 fi
 }
 
-VMWARE () {
+ALL () {
                 echo "Copiando configuracion para $HOST a $FILE"
-    if  [ "$OS" == "VMWARE" ]; then
+    if  [ "$OS" == "ALL" ]; then
         echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALLSERVICES"
 cat << EOF >> $FILE
 define servicedependency {
