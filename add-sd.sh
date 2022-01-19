@@ -47,7 +47,21 @@ define servicedependency {
 }
 EOF
         echo "Config aplicada"
+elif [ "$OS" == "VMWARE" ]; then
+    echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
+cat << EOF >> $FILE
+define servicedependency {
+    host_name                           $HOST
+    service_description                 PING
+    dependent_host_name                 $HOST
+    dependent_service_description       CPU,HARDWARE,IO-READ,IO-WRITE,MEMORIA,NET-NIC,SWAP,VMFS-ALL
+    execution_failure_criteria          c
+    notification_failure_criteria       c
+}
+EOF
+        echo "Config aplicada"
 fi
+
 }
     
 while true; do
