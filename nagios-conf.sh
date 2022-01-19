@@ -5,7 +5,7 @@ echo "Chequeando conf:"
 docker exec -t $ID su - naemon -c "/usr/bin/naemon -v /etc/nagios/conf/naemon.cfg"
 
 reiniciar (){
-    docker exec -t nagios.1.p3sr73qijbwz7h9bzpfhncx85 supervisorctl restart nagios
+    docker exec -t $ID supervisorctl restart nagios
 }
 
 while true; do
