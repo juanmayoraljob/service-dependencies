@@ -2,6 +2,7 @@
 
 HOST=$1
 OS=$2
+ALL=$3
 FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 
 if [ $# -eq 0 ]
@@ -21,8 +22,8 @@ fi
 
 aplicar_config () {
     echo "Copiando configuracion para $HOST a $FILE"
-    if  [ "$OS" == "LINUX" ]; then
-    echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
+    if  [ "$OS" == "LINUX" ] && [ -z $ALL ]; then
+        echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
 cat << EOF >> $FILE
 define servicedependency {
     host_name                           $HOST
@@ -33,8 +34,21 @@ define servicedependency {
     notification_failure_criteria       c
 }
 EOF
+    echo "Config aplicada"
+else
+     echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALL"
+cat << EOF >> $FILE
+define servicedependency {
+    host_name                           $HOST
+    service_description                 PING
+    dependent_host_name                 $HOST
+    dependent_service_description       $ALL
+    execution_failure_criteria          c
+    notification_failure_criteria       c
+}
+EOF
         echo "Config aplicada"
-elif [ "$OS" == "WIN" ]; then
+elif [ "$OS" == "WIN" ] && [ -z $ALL ]; then
     echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
 cat << EOF >> $FILE
 define servicedependency {
@@ -47,7 +61,20 @@ define servicedependency {
 }
 EOF
         echo "Config aplicada"
-elif [ "$OS" == "VMWARE" ]; then
+else
+     echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALL"
+cat << EOF >> $FILE
+define servicedependency {
+    host_name                           $HOST
+    service_description                 PING
+    dependent_host_name                 $HOST
+    dependent_service_description       $ALL
+    execution_failure_criteria          c
+    notification_failure_criteria       c
+}
+EOF
+        echo "Config aplicada"
+elif [ "$OS" == "VMWARE" ] && [ -z $ALL ]; then
     echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
 cat << EOF >> $FILE
 define servicedependency {
@@ -55,6 +82,19 @@ define servicedependency {
     service_description                 PING
     dependent_host_name                 $HOST
     dependent_service_description       CPU,HARDWARE,IO-READ,IO-WRITE,MEMORIA,NET-NIC,SWAP,VMFS-ALL
+    execution_failure_criteria          c
+    notification_failure_criteria       c
+}
+EOF
+        echo "Config aplicada"
+else
+     echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALL"
+cat << EOF >> $FILE
+define servicedependency {
+    host_name                           $HOST
+    service_description                 PING
+    dependent_host_name                 $HOST
+    dependent_service_description       $ALL
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
