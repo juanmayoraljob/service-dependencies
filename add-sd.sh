@@ -3,6 +3,7 @@
 HOST=$1
 OS=$2
 ALL=$3
+
 FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 ID=$(docker ps |grep -i naemon |awk '{print $NF}')
 #ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |grep -v "#" |awk '{print $2}' | paste -s -d, -)
@@ -24,6 +25,10 @@ else
 
 fi
 
+check_status () {
+    if [ $? -eq 0 ]; then echo "Error" exit; fi
+}
+
 
 LINUX (){
         echo "Copiando configuracion para $HOST a $FILE"
@@ -39,6 +44,7 @@ define servicedependency {
     notification_failure_criteria       c
 }
 EOF
+    check_status
     echo "Config aplicada"
 elif [ "$OS" == "LINUX" ] && [ ! -z $ALL ]; then
         echo "OS: $OS. Copiando configuracion para $HOST a $FILE para todos los servicios: $ALLSERVICES"
@@ -51,7 +57,8 @@ define servicedependency {
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
-EOF
+EOF 
+    check_status
 echo "Config aplicada"
 fi
 }
@@ -70,6 +77,7 @@ define servicedependency {
     notification_failure_criteria       c
 }
 EOF
+    check_status
     echo "Config aplicada"
 elif [ "$OS" == "WIN" ] && [ ! -z $ALL ]; then
         echo "OS: $OS. Copiando configuracion para $HOST a $FILE para todos los servicios: $ALLSERVICES"
@@ -83,6 +91,7 @@ define servicedependency {
     notification_failure_criteria       c
 }
 EOF
+    check_status
 echo "Config aplicada"
 fi
 }
@@ -100,7 +109,8 @@ define servicedependency {
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
-EOF
+EOF 
+    check_status
 echo "Config aplicada"
 fi
 }
