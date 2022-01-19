@@ -7,6 +7,7 @@ FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 ID=$(docker ps |grep -i naemon |awk '{print $NF}')
 #ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |grep -v "#" |awk '{print $2}' | paste -s -d, -)
 ALLSERVICES=$(docker exec -i $ID /bin/bash -c "pynag list WHERE host_name=$HOST and object_type=service" |grep service |grep -v "PING" |awk '{print $2}' | cut -d '/' -f2 | paste -s -d,)
+BASICSERVICES=$(docker exec -i $ID /bin/bash -c "pynag list WHERE host_name=$HOST and object_type=service" |egrep -i 'FILESYS*|LOAD|CPU|MEMORI*|SERVIC*|DISCO*|SWAP|' |grep -v "PING" |awk '{print $2}' | cut -d '/' -f2 | paste -s -d,)
 
 if [ $# -eq 0 ]
   then
@@ -27,20 +28,20 @@ fi
 LINUX (){
         echo "Copiando configuracion para $HOST a $FILE"
     if  [ "$OS" == "LINUX" ] && [ -z $ALL ]; then
-        echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
+        echo "OS: $OS. Copiando configuracion para $HOST a $FILE para los servicios basicos: $BASICSERVICES"
 cat << EOF >> $FILE
 define servicedependency {
     host_name                           $HOST
     service_description                 PING
     dependent_host_name                 $HOST
-    dependent_service_description       CPU,MEMORIA,FILESYSTEMS
+    dependent_service_description       $BASICSERVICES
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
 EOF
     echo "Config aplicada"
 elif [ "$OS" == "LINUX" ] && [ ! -z $ALL ]; then
-        echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALLSERVICES"
+        echo "OS: $OS. Copiando configuracion para $HOST a $FILE para todos los servicios: $ALLSERVICES"
 cat << EOF >> $FILE
 define servicedependency {
     host_name                           $HOST
@@ -58,20 +59,20 @@ fi
 WIN () {
             echo "Copiando configuracion para $HOST a $FILE"
     if  [ "$OS" == "WIN" ] && [ -z $ALL ]; then
-        echo "OS: $OS. Copiando configuracion para $HOST a $FILE"
+        echo "OS: $OS. Copiando configuracion para $HOST a $FILE $FILE para los servicios basicos: $BASICSERVICES"
 cat << EOF >> $FILE
 define servicedependency {
     host_name                           $HOST
     service_description                 PING
     dependent_host_name                 $HOST
-    dependent_service_description       CPU,MEMORIA,DISCOS
+    dependent_service_description       $BASICSERVICES
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
 EOF
     echo "Config aplicada"
 elif [ "$OS" == "WIN" ] && [ ! -z $ALL ]; then
-        echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALLSERVICES"
+        echo "OS: $OS. Copiando configuracion para $HOST a $FILE para todos los servicios: $ALLSERVICES"
 cat << EOF >> $FILE
 define servicedependency {
     host_name                           $HOST
@@ -89,7 +90,7 @@ fi
 ALL () {
                 echo "Copiando configuracion para $HOST a $FILE"
     if  [ "$OS" == "ALL" ]; then
-        echo "OS: $OS. Copiando configuracion para $HOST a $FILE for services: $ALLSERVICES"
+        echo "OS: $OS. Copiando configuracion para $HOST a $FILE para todos los servicios: $ALLSERVICES"
 cat << EOF >> $FILE
 define servicedependency {
     host_name                           $HOST
