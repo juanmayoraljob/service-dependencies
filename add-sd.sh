@@ -112,7 +112,7 @@ while true; do
              Hostname: $HOST
              File: $FILE
              OS: $OS
-             Services: BASICOS
+             Services: $BASICSERVICES
              -> Aplicar configuracion? (Yyes/Nno): "  yn
     case $yn in
         [Yy]* ) $OS ; break;;
