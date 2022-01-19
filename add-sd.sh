@@ -7,7 +7,7 @@ FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 ID=$(docker ps |grep -i naemon |awk '{print $NF}')
 #ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |grep -v "#" |awk '{print $2}' | paste -s -d, -)
 ALLSERVICES=$(docker exec -i $ID /bin/bash -c "pynag list WHERE host_name=$HOST and object_type=service" |grep service |grep -v "PING" |awk '{print $2}' | cut -d '/' -f2 | paste -s -d,)
-BASICSERVICES=$(docker exec -i $ID /bin/bash -c "pynag list WHERE host_name=$HOST and object_type=service" |egrep -i 'FILESYS*|LOAD|CPU|MEMORI*|SERVIC*|DISCO*|SWAP|' |grep -v "PING" |awk '{print $2}' | cut -d '/' -f2 | paste -s -d,)
+BASICSERVICES=$(docker exec -i $ID /bin/bash -c "pynag list WHERE host_name=$HOST and object_type=service" |grep service |egrep -i 'FILESYS*|LOAD|CPU|MEMORI*|SERVIC*|DISCO*|SWAP|' |grep -v "PING" |awk '{print $2}' | cut -d '/' -f2 | paste -s -d,)
 
 if [ $# -eq 0 ]
   then
