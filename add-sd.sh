@@ -3,8 +3,8 @@
 HOST=$1
 OS=$2
 ALL=$3
-PATH=$(dirname "$0")
-PATH_BACKUP=$PATH/backup
+PATH_BASE=$(dirname "$0")
+PATH_BACKUP=$PATH_BASE/backup
 FILE=$(find /srv/sensor/nagios/vol/etc/local -iname $1.cfg)
 ID=$(docker ps |grep -i naemon |awk '{print $NF}')
 #ALLSERVICES=$(grep -i service_description $FILE |grep -iv ping |grep -v "#" |awk '{print $2}' | paste -s -d, -)
@@ -26,7 +26,7 @@ else
 
 fi
 
-cp $FILE $PATH_BACKUP/$FILE.bkp
+cp $FILE $PATH_BACKUP/$HOST.bkp
 check_status () {
     if [ $? -eq 0 ]; then echo "Error" exit; fi
 }
@@ -59,7 +59,7 @@ define servicedependency {
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
-EOF 
+EOF
     check_status
 echo "Config aplicada"
 fi
@@ -111,7 +111,7 @@ define servicedependency {
     execution_failure_criteria          c
     notification_failure_criteria       c
 }
-EOF 
+EOF
     check_status
 echo "Config aplicada"
 fi
