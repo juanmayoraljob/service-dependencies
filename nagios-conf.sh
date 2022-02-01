@@ -16,3 +16,4 @@ while true; do
         [Nn]* ) echo "No se realiza el restart" ; exit;;
         * ) echo "Please answer yes or no.";;
     esac
+done
